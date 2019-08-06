@@ -56,7 +56,7 @@ namespace Homely.Storage.Blobs
         }
 
         /// <inheritdoc  />
-        public async Task<Stream> GetAsync(string blobName,
+        public async Task<BlobStream> GetAsync(string blobName,
                                            CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(blobName))
@@ -64,22 +64,26 @@ namespace Homely.Storage.Blobs
                 throw new ArgumentException(nameof(blobName));
             }
 
-            var blob = (await Container).GetBlockBlobReference(blobName);
-            if (blob == null ||
-                !await blob.ExistsAsync(cancellationToken))
+            var blob = await GetCloudBlockBlobAsync(blobName, cancellationToken);
+            if (blob == null)
             {
                 return null;
             }
-
+            
             var stream = new MemoryStream();
 
             await blob.DownloadToStreamAsync(stream, cancellationToken);
 
-            return stream;
+            return new BlobStream
+            {
+                Stream = stream,
+                Metadata = blob.Metadata,
+                Properties = blob.Properties
+            };
         }
 
         /// <inheritdoc />
-        public async Task<T> GetAsync<T>(string blobName,
+        public async Task<Blob<T>> GetAsync<T>(string blobName,
                                          CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(blobName))
@@ -89,7 +93,13 @@ namespace Homely.Storage.Blobs
 
             string data;
 
-            using (var stream = await GetAsync(blobName, cancellationToken))
+            var blobStream = await GetAsync(blobName, cancellationToken);
+            if (blobStream == null)
+            {
+                return default;
+            }
+
+            using (var stream = blobStream.Stream)
             {
                 if (stream == null)
                 {
@@ -112,11 +122,21 @@ namespace Homely.Storage.Blobs
             {
                 // Assumption: Item was stored 'raw' and not serialized as Json.
                 //             No need to do anything special, just use the current data.
-                return (T)Convert.ChangeType(data, typeof(T));
+                return new Blob<T>
+                {
+                    Data = (T)Convert.ChangeType(data, typeof(T)),
+                    Metadata = blobStream.Metadata,
+                    Properties = blobStream.Properties
+                };
             }
 
             // Assumption: Item was probably serialized (because it was not a simple type), so we now deserialize it.
-            return JsonConvert.DeserializeObject<T>(data);
+            return new Blob<T>
+            {
+                Data = JsonConvert.DeserializeObject<T>(data),
+                Metadata = blobStream.Metadata,
+                Properties = blobStream.Properties
+            };
         }
 
         /// <inheritdoc />
@@ -139,6 +159,7 @@ namespace Homely.Storage.Blobs
         /// <inheritdoc />
         public async Task<string> AddAsync(object item,
                                            string blobId = null,
+                                           string contentType = null,
                                            CancellationToken cancellationToken = default)
         {
             if (item == null)
@@ -146,13 +167,14 @@ namespace Homely.Storage.Blobs
                 throw new ArgumentNullException(nameof(item));
             }
 
-            return await AddAsync(item, blobId, Encoding.UTF8, cancellationToken);
+            return await AddAsync(item, blobId, Encoding.UTF8, contentType, cancellationToken);
         }
 
         /// <inheritdoc />
         public async Task<string> AddAsync(object item,
                                            string blobId,
                                            Encoding encoding,
+                                           string contentType = null,
                                            CancellationToken cancellationToken = default)
         {
             if (item == null)
@@ -161,18 +183,25 @@ namespace Homely.Storage.Blobs
             }
 
             string data;
-            string contentType;
 
             if (item.GetType().IsASimpleType())
             {
                 // No need to convert this item to json.
                 data = item.ToString();
-                contentType = "text/plain";
+
+                if (contentType == null)
+                {
+                    contentType = "text/plain";
+                }
             }
             else
             {
                 data = JsonConvert.SerializeObject(item);
-                contentType = "application/json";
+
+                if (contentType == null)
+                {
+                    contentType = "application/json";
+                }
             }
 
             var bytes = encoding.GetBytes(data);
@@ -311,7 +340,7 @@ namespace Homely.Storage.Blobs
 
             foreach (var batch in items.Batch(finalBatchSize))
             {
-                var tasks = batch.Select(item => AddAsync(item, null, encoding, cancellationToken));
+                var tasks = batch.Select(item => AddAsync(item, null, encoding, null, cancellationToken));
 
                 // Execute the batch! Go Go Go!
                 var results = await Task.WhenAll(tasks);
@@ -322,6 +351,23 @@ namespace Homely.Storage.Blobs
             return blobIds;
         }
 
+        private async Task<CloudBlockBlob> GetCloudBlockBlobAsync(string blobName,
+                                                                  CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(blobName))
+            {
+                throw new ArgumentException(nameof(blobName));
+            }
+
+            var blob = (await Container).GetBlockBlobReference(blobName);
+            if (blob == null ||
+                !await blob.ExistsAsync(cancellationToken))
+            {
+                return null;
+            }
+
+            return blob;
+        }
 
         private async Task<CloudBlobContainer> CreateCloudBlobContainer(BlobContainerPermissions permissions)
         {

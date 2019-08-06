@@ -33,8 +33,8 @@ namespace Homely.Storage.Blobs.Tests
             foreach(var blobId in blobIds)
             {
                 var existingUser = await azureBlob.GetAsync<SomeFakeUser>(blobId);
-                users.ShouldContain(x => x.Name == existingUser.Name && 
-                                         x.Age == existingUser.Age);
+                users.ShouldContain(x => x.Name == existingUser.Data.Name && 
+                                         x.Age == existingUser.Data.Age);
             }
         }
 
@@ -65,8 +65,8 @@ namespace Homely.Storage.Blobs.Tests
             foreach (var blobId in blobIds)
             {
                 var existingUser = await azureBlob.GetAsync<SomeFakeUser>(blobId);
-                existingUser.Name.ShouldBe(asciiText);
-                users.ShouldContain(x => x.Age == existingUser.Age);
+                existingUser.Data.Name.ShouldBe(asciiText);
+                users.ShouldContain(x => x.Age == existingUser.Data.Age);
             }
 
         }

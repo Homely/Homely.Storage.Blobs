@@ -22,7 +22,7 @@ namespace Homely.Storage.Blobs.Tests
             // Assert.
             blobId.ShouldNotBeNullOrEmpty();
             var blob = await azureBlob.GetAsync<SomeFakeUser>(blobId);
-            blob.ShouldLookLike(TestUser);
+            blob.Data.ShouldLookLike(TestUser);
         }
 
         [Fact]
@@ -38,7 +38,7 @@ namespace Homely.Storage.Blobs.Tests
             // Assert.
             blobId.ShouldNotBeNullOrEmpty();
             var blob = await azureBlob.GetAsync<string>(blobId);
-            blob.ShouldLookLike(text);
+            blob.Data.ShouldLookLike(text);
         }
 
         [Fact]
@@ -60,7 +60,7 @@ namespace Homely.Storage.Blobs.Tests
             // Assert.
             blobId.ShouldNotBeNullOrEmpty();
             var blob = await azureBlob.GetAsync<SomeFakeUser>(blobId);
-            blob.ShouldLookLike(TestUser);
+            blob.Data.ShouldLookLike(TestUser);
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace Homely.Storage.Blobs.Tests
             // Assert.
             blobId.ShouldNotBeNullOrWhiteSpace();
             var blob = await azureBlob.GetAsync<string>(blobId);
-            blob.ShouldLookLike(asciiText);
+            blob.Data.ShouldLookLike(asciiText);
         }
 
         [Fact]
@@ -97,14 +97,14 @@ namespace Homely.Storage.Blobs.Tests
             byte[] existingBytes;
             using (var ms = new MemoryStream())
             {
-                existingBlob.Position = 0;
-                existingBlob.CopyTo(ms);
+                existingBlob.Stream.Position = 0;
+                existingBlob.Stream.CopyTo(ms);
                 existingBytes = ms.ToArray();
             }
 
             existingBytes.Length.ShouldBe(bytes.Length);
 
-            existingBlob.Dispose();
+            existingBlob.Stream.Dispose();
         }
 
         [Fact]
@@ -122,7 +122,7 @@ namespace Homely.Storage.Blobs.Tests
 
             var existingBlob = await azureBlob.GetAsync(blobId);
             existingBlob.ShouldNotBeNull();
-            existingBlob.Length.ShouldBeGreaterThan(0);
+            existingBlob.Stream.Length.ShouldBeGreaterThan(0);
         }
 
         [Fact(Skip = "Azurite is unable to handle 'copy'ing Uri's. As such, the test will fail because Azurite throws an exception.")]
@@ -138,7 +138,7 @@ namespace Homely.Storage.Blobs.Tests
             // Assert.
             var existingBlob = await azureBlob.GetAsync(blobId);
             existingBlob.ShouldNotBeNull();
-            existingBlob.Length.ShouldBeGreaterThan(0);
+            existingBlob.Stream.Length.ShouldBeGreaterThan(0);
         }
     }
 }

@@ -38,14 +38,16 @@ namespace Homely.Storage.Blobs.Tests
         public async Task GivenAnExistingClassInstance_GetAsyncGeneric_ReturnsTheInstance()
         {
             // Arrange.
-            var azureBlob = await GetAzureBlobAsync();
+            var contentType = "some/content-type";
+            await Blob.AddAsync(TestUser, TestClassInstanceName, contentType, default);
 
             // Act.
-            var user = await azureBlob.GetAsync<SomeFakeUser>(TestClassInstanceName);
+            var user = await Blob.GetAsync<SomeFakeUser>(TestClassInstanceName);
 
             // Assert.
             user.ShouldNotBeNull();
-            user.ShouldLookLike(TestUser);
+            user.Properties.ContentType.ShouldBe(contentType);
+            user.Data.ShouldLookLike(TestUser);
         }
 
         [Fact]

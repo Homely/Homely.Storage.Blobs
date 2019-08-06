@@ -16,7 +16,7 @@ namespace Homely.Storage.Blobs
         /// <param name="blobName">string: The identifier/name of this content to be stored on Azure.</param>
         /// <param name="cancellationToken">A System.Threading.CancellationToken to observe while waiting for a task to complete.</param>
         /// <returns>A System.Threading.Tasks.Task object that represents the asynchronous operation.</returns>
-        Task<Stream> GetAsync(string blobName, CancellationToken cancellationToken = default);
+        Task<BlobStream> GetAsync(string blobName, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Retrieves an item from Azure Blob storage.
@@ -26,7 +26,7 @@ namespace Homely.Storage.Blobs
         /// <param name="blobName">string: The identifier/name of this content to be stored on Azure.</param>
         /// <param name="cancellationToken">A System.Threading.CancellationToken to observe while waiting for a task to complete.</param>
         /// <returns>A System.Threading.Tasks.Task object that represents the asynchronous operation.</returns>
-        Task<T> GetAsync<T>(string blobName, CancellationToken cancellationToken = default);
+        Task<Blob<T>> GetAsync<T>(string blobName, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Deletes an item from Azure blob storage.
@@ -43,10 +43,12 @@ namespace Homely.Storage.Blobs
         /// <remarks>Default encoding is set as UTF8.<br/>The item to store must be serializable.</remarks>
         /// <param name="item">object: the item to store in the azure blob.</param>
         /// <param name="blobId">Optional. The identifier/name of this content to be stored on Azure. If not supplied, then a new <code>Guid</code> will be used.</param>
+        /// <param name="contentType">Optional. What type of content exists in the file. If none is provided, then Azure defaults this value to <code>application/octet-stream</code>.</param>
         /// <param name="cancellationToken">A System.Threading.CancellationToken to observe while waiting for a task to complete.</param>
         /// <returns>string: blob name.</returns>
         Task<string> AddAsync(object item, 
                               string blobId = null,
+                              string contentType = null,
                               CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -55,13 +57,15 @@ namespace Homely.Storage.Blobs
         /// </summary>
         /// <remarks>The item to store must be serializable.</remarks>
         /// <param name="item">object: the item to store in the azure blob.</param>
-        /// <param name="blobId">The identifier/name of this content to be stored on Azure. If <code>null</code>, then a new <code>Guid</code> will be used.</param>
+        /// <param name="blobId">The identifier/name of this content to be stored on Azure. If <code>null</code>, then a new <code>Guid</code> will be used.</param>        
         /// <param name="encoding">The encoding type to serialize the <code>item</code>.</param>
+        /// <param name="contentType">Optional. What type of content exists in the file. If none is provided, then Azure defaults this value to <code>application/octet-stream</code>.</param>
         /// <param name="cancellationToken">A System.Threading.CancellationToken to observe while waiting for a task to complete.</param>
         /// <returns>string: blob name.</returns>
         Task<string> AddAsync(object item,
                               string blobId,
                               Encoding encoding,
+                              string contentType = null,
                               CancellationToken cancellationToken = default);
 
         /// <summary>
