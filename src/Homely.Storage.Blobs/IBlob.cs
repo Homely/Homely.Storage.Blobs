@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -16,7 +16,9 @@ namespace Homely.Storage.Blobs
         /// <param name="blobName">string: The identifier/name of this content to be stored on Azure.</param>
         /// <param name="cancellationToken">A System.Threading.CancellationToken to observe while waiting for a task to complete.</param>
         /// <returns>A System.Threading.Tasks.Task object that represents the asynchronous operation.</returns>
-        Task<Stream> GetAsync(string blobName, CancellationToken cancellationToken = default);
+        Task<bool> GetAsync(string blobName, 
+                            Stream target,
+                            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Retrieves an item from Azure Blob storage.
@@ -27,6 +29,10 @@ namespace Homely.Storage.Blobs
         /// <param name="cancellationToken">A System.Threading.CancellationToken to observe while waiting for a task to complete.</param>
         /// <returns>A System.Threading.Tasks.Task object that represents the asynchronous operation.</returns>
         Task<T> GetAsync<T>(string blobName, CancellationToken cancellationToken = default);
+
+        Task<BlobData<T>> GetAsync<T>(string blobName, 
+                                      IList<string> existingPropertiesOrMetaData = default, 
+                                      CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Deletes an item from Azure blob storage.
