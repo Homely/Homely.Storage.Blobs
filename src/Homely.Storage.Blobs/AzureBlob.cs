@@ -48,7 +48,7 @@ namespace Homely.Storage.Blobs
             _container = new Lazy<Task<CloudBlobContainer>>(() => CreateCloudBlobContainer(permissions));
         }
 
-        /// <inheritdoc  />
+        /// <inheritdoc />
         public string Name { get; }
 
         private Task<CloudBlobContainer> Container
@@ -56,21 +56,21 @@ namespace Homely.Storage.Blobs
             get { return _container.Value; }
         }
 
-        /// <inheritdoc  />
-        public async Task<bool> GetAsync(string blobName,
+        /// <inheritdoc />
+        public async Task<bool> GetAsync(string blobId,
                                          Stream stream,
                                          CancellationToken cancellationToken = default)
         {
-            await GetBlobDataAsync(blobName, stream, cancellationToken);
+            await GetBlobDataAsync(blobId, stream, cancellationToken);
 
             return stream.Length > 0;
         }
 
         /// <inheritdoc />
-        public async Task<T> GetAsync<T>(string blobName,
+        public async Task<T> GetAsync<T>(string blobId,
                                          CancellationToken cancellationToken = default)
         {
-            var blobData = await GetAsync<T>(blobName, null, cancellationToken);
+            var blobData = await GetAsync<T>(blobId, null, cancellationToken);
             if (blobData == null)
             {
                 return default;
@@ -79,13 +79,14 @@ namespace Homely.Storage.Blobs
             return blobData.Data;
         }
 
-        public async Task<BlobData<T>> GetAsync<T>(string blobName, 
+        /// <inheritdoc />
+        public async Task<BlobData<T>> GetAsync<T>(string blobId, 
                                                    IList<string> existingPropertiesOrMetaData = default, 
                                                    CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(blobName))
+            if (string.IsNullOrWhiteSpace(blobId))
             {
-                throw new ArgumentException(nameof(blobName));
+                throw new ArgumentException(nameof(blobId));
             }
 
             var result = new BlobData<T>();
@@ -94,7 +95,7 @@ namespace Homely.Storage.Blobs
 
             using (var stream = new MemoryStream())
             {
-                var blobData = await GetBlobDataAsync(blobName, stream, cancellationToken);
+                var blobData = await GetBlobDataAsync(blobId, stream, cancellationToken);
 
                 if (stream.Length <= 0)
                 {
@@ -139,15 +140,15 @@ namespace Homely.Storage.Blobs
         }
 
         /// <inheritdoc />
-        public async Task DeleteAsync(string blobName,
+        public async Task DeleteAsync(string blobId,
                                       CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(blobName))
+            if (string.IsNullOrWhiteSpace(blobId))
             {
-                throw new ArgumentException(nameof(blobName));
+                throw new ArgumentException(nameof(blobId));
             }
 
-            var blob = (await Container).GetBlockBlobReference(blobName);
+            var blob = (await Container).GetBlockBlobReference(blobId);
             if (blob != null &&
                 await blob.ExistsAsync(cancellationToken))
             {
