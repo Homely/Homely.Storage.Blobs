@@ -3,6 +3,7 @@ using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -113,6 +114,31 @@ namespace Homely.Storage.Blobs.Tests
             // Assert.
             exception.ShouldNotBeNull();
             exception.Message.ShouldBe($"BlobProperties and MetaData doesn't contain the expected key: [{missingKey}]. At least one of them should contain that key.");
+        }
+
+        [Theory]
+        [InlineData("some text", "some text")]
+        [InlineData("some longer text", "some longer ...")]
+        public async Task GivenAnExistingItemInStorageButIsNotInJsonFormat_GetAsyncGeneric_ThrowsAnException(string text, string expectedErrorText)
+        {
+            // Arrange.
+            var azureBlob = await GetAzureBlobAsync(false);
+
+            // Add the item so it's not auto deserialized.
+            string blobId;
+            var bytes = Encoding.UTF8.GetBytes(text);
+            using (var memoryStream = new MemoryStream(bytes))
+            {
+                blobId = await azureBlob.AddAsync(memoryStream);
+            }
+
+            // Act.
+            var exception = await Should.ThrowAsync<Exception>( () => azureBlob.GetAsync<SomeFakeUser>(blobId, default));
+
+            // Assert.
+            exception.ShouldNotBeNull();
+            var errorMessage = $"Failed to deserialize the json data [{expectedErrorText}], length: [{text.Length}].";
+            exception.Message.ShouldBe(errorMessage);
         }
     }
 }
