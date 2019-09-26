@@ -133,7 +133,19 @@ namespace Homely.Storage.Blobs
             else
             {
                 // Assumption: Item was probably serialized (because it was not a simple type), so we now deserialize it.
-                result.Data = JsonConvert.DeserializeObject<T>(data);
+                try
+                {
+                    result.Data = JsonConvert.DeserializeObject<T>(data);
+                }
+                catch(Exception exception)
+                {
+                    var errorData = data?.Length >= 10
+                        ? data.Substring(0, 7) + "..."
+                        : data
+                        ?? "- no data -";
+                    var errorLength = data?.Length ?? 0;
+                    throw new JsonReaderException($"Failed to deserialize the json data [{errorData}], length: [{errorLength}].", exception);
+                }
             }
 
             return result;
