@@ -24,13 +24,13 @@ namespace Homely.Storage.Blobs.Tests
         public async Task GivenAnExistingStream_GetAsync_ReturnsTrue()
         {
             // Arrange.
-            var azureBlob = await GetAzureBlobAsync();
+            var (azureBlob, imageBlobId, _) = await SetupAzureBlobAsync();
             var fileInfo = new FileInfo(TestImageName);
 
             using (var stream = new MemoryStream())
             {
                 // Act.
-                var result = await azureBlob.GetAsync(TestImageName, stream);
+                var result = await azureBlob.GetAsync(imageBlobId, stream);
 
                 // Assert.
                 result.ShouldBeTrue();

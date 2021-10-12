@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,26 +20,22 @@ namespace Homely.Storage.Blobs.Tests
         protected async Task<(AzureBlob Blob, string ImageBlobId, string TestUserBlobId)> SetupAzureBlobAsync(bool setupInitialBlobData = true)
         {
             var logger = new NullLogger<AzureBlob>();
-            var blob = new AzureBlob("UseDevelopmentStorage=true", "test-container", logger);
+            var container = Guid.NewGuid().ToString(); // This is so all the files (for this individual test) as isolated into this container.
+            var blob = new AzureBlob("UseDevelopmentStorage=true", container, logger);
 
             var imageBlobId = Guid.NewGuid().ToString();
             var testUserBlobId = Guid.NewGuid().ToString();
 
             if (setupInitialBlobData)
             {
-                var cancellationToken = new CancellationToken();
+                var image = await File.ReadAllBytesAsync(TestImageName);
 
-                // Do we have the image already?
-                if (await blob.GetAsync<string>(imageBlobId, cancellationToken) == null)
-                {
-                    var image = await File.ReadAllBytesAsync(TestImageName);
-                    await blob.AddAsync(image, imageBlobId);
-                }
+                var tasks = new List<Task>();
 
-                if (await blob.GetAsync<SomeFakeUser>(testUserBlobId, cancellationToken) == null)
-                {
-                    await blob.AddAsync(TestUser, testUserBlobId);
-                }
+                tasks.Add(blob.AddAsync(image, imageBlobId));
+                tasks.Add(blob.AddAsync(TestUser, testUserBlobId));
+
+                await Task.WhenAll(tasks);
             }
 
             return (blob, imageBlobId, testUserBlobId);
