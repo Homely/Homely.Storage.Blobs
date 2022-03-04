@@ -145,7 +145,7 @@ namespace Homely.Storage.Blobs.Tests
         [Theory]
         [InlineData(CacheControlType.NoCache)]
         [InlineData(CacheControlType.NoStore)]
-        public async Task GivenAnObjectThatDoesNotExist_AddAsync_SetWithCache_AddsObjectAndCacheIsSet(CacheControlType expectedCacheControl)
+        public async Task GivenAnObjectThatDoesNotExistAndCacheControlIsSet_AddAsync__AddsTheObjectAndTheCacheIsSet(CacheControlType expectedCacheControl)
         {
             // Arrange.
             var azureBlob = await GetAzureBlobAsync();
@@ -165,7 +165,7 @@ namespace Homely.Storage.Blobs.Tests
         }
 
         [Fact]
-        public async Task GivenAnObjectThatDoesNotExist_AddAsync_SetWithNoCache_AddsObjectAndCacheIsNotSet()
+        public async Task GivenAnObjectThatDoesNotExistAndCacheControlIsSet_AddAsync_AddsTheObjectAndTheCacheIsNotSet()
         {
             // Arrange.
             var azureBlob = await GetAzureBlobAsync();
@@ -183,7 +183,7 @@ namespace Homely.Storage.Blobs.Tests
         }
 
         [Fact]
-        public async Task GivenAnObjectWhichHasUTF8CharactersButWeWantToAddItAsAscii_AddAsync_WithCacheControl_AddsTheObjectAsAsciiAndCacheControlSet()
+        public async Task GivenAnObjectWhichHasUTF8CharactersButWeWantToAddItAsAsciiAndWithCacheControl_AddAsync_AddsTheObjectAsAsciiAndCacheControlSet()
         {
             // Arrange.
             var azureBlob = await GetAzureBlobAsync();
