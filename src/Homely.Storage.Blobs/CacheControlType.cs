@@ -25,5 +25,19 @@ namespace Homely.Storage.Blobs
                     return string.Empty;
             }
         }
+
+        public static CacheControlType GetCacheControlType(string stringValue)
+        {
+            if (stringValue.Equals("no-store", StringComparison.OrdinalIgnoreCase))
+            {
+                return CacheControlType.NoStore;
+            }
+            else if (stringValue.Equals("no-cache", StringComparison.OrdinalIgnoreCase))
+            {
+                return CacheControlType.NoCache;
+            }
+
+            return CacheControlType.None;
+        }
     }
 }

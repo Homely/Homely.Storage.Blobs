@@ -1,6 +1,7 @@
 using Homely.Testing;
 using Shouldly;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -139,6 +140,46 @@ namespace Homely.Storage.Blobs.Tests
                 result.ShouldBeTrue();
                 memoryStream.Length.ShouldBeGreaterThan(0);
             }
+        }
+
+        [Theory]
+        [InlineData(CacheControlType.NoCache)]
+        [InlineData(CacheControlType.NoStore)]
+        public async Task GivenAnObjectThatDoesNotExist_AddAsync_SetWithCache_AddsObjectAndCacheIsSet(CacheControlType expectedCacheControl)
+        {
+            // Arrange.
+            var azureBlob = await GetAzureBlobAsync();
+
+            // Act.
+            var blobId = await azureBlob.AddAsync(TestUser, cacheControlType: expectedCacheControl);
+
+            // Assert.
+            blobId.ShouldNotBeNullOrEmpty();
+            var blob = await azureBlob.GetAsync<SomeFakeUser>(blobId, new List<string> { "CacheControl" }, default);
+            blob.Data.ShouldLookLike(TestUser);
+            blob.MetaData.ShouldContainKey("CacheControl");
+
+            CacheControlType cacheControlResult = CacheControlTypeHelper.GetCacheControlType(blob.MetaData["CacheControl"].ToString());
+
+            cacheControlResult.ShouldBe(expectedCacheControl);
+        }
+
+        [Fact]
+        public async Task GivenAnObjectThatDoesNotExist_AddAsync_SetWithNoCache_AddsObjectAndCacheIsNotSet()
+        {
+            // Arrange.
+            var azureBlob = await GetAzureBlobAsync();
+
+            // Act.
+            var blobId = await azureBlob.AddAsync(TestUser);
+
+            // Assert.
+            blobId.ShouldNotBeNullOrEmpty();
+            var blob = await azureBlob.GetAsync<SomeFakeUser>(blobId, new List<string> { "CacheControl" }, default);
+            blob.Data.ShouldLookLike(TestUser);
+            blob.MetaData.ShouldContainKey("CacheControl");
+
+            blob.MetaData["CacheControl"].ShouldBeNull();
         }
     }
 }
