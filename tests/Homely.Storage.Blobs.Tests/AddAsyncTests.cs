@@ -183,7 +183,7 @@ namespace Homely.Storage.Blobs.Tests
         }
 
         [Fact]
-        public async Task GivenAnObjectWhichHasUTF8CharactersButWeWantToAddItAsAscii_AddAsync_WithCacheControl_AddsTheObjectAsAsciiAndCacheControlSet()
+        public async Task GivenAnObjectWhichHasUTF8CharactersButWeWantToAddItAsAsciiAndWithCacheControl_AddAsync_AddsTheObjectAsAsciiAndCacheControlSet()
         {
             // Arrange.
             var azureBlob = await GetAzureBlobAsync();
