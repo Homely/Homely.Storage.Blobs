@@ -145,7 +145,7 @@ namespace Homely.Storage.Blobs.Tests
         [Theory]
         [InlineData(CacheControlType.NoCache)]
         [InlineData(CacheControlType.NoStore)]
-        public async Task GivenAnObjectThatDoesNotExistAndCacheControlIsSet_AddAsync__AddsTheObjectAndTheCacheIsSet(CacheControlType expectedCacheControl)
+        public async Task GivenAnObjectThatDoesNotExistAndCacheControlIsSet_AddAsync_AddsTheObjectAndTheCacheIsSet(CacheControlType expectedCacheControl)
         {
             // Arrange.
             var azureBlob = await GetAzureBlobAsync();
@@ -165,7 +165,7 @@ namespace Homely.Storage.Blobs.Tests
         }
 
         [Fact]
-        public async Task GivenAnObjectThatDoesNotExistAndCacheControlIsSet_AddAsync_AddsTheObjectAndTheCacheIsNotSet()
+        public async Task GivenAnObjectThatDoesNotExistAndCacheControlIsNotSet_AddAsync_AddsTheObjectAndTheCacheIsNotSet()
         {
             // Arrange.
             var azureBlob = await GetAzureBlobAsync();
