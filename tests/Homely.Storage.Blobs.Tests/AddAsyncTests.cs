@@ -165,7 +165,7 @@ namespace Homely.Storage.Blobs.Tests
         }
 
         [Fact]
-        public async Task GivenAnObjectThatDoesNotExist_AddAsync_SetWithNoCache_AddsObjectAndCacheIsNotSet()
+        public async Task GivenAnObjectThatDoesNotExistAndCacheControlIsSet_AddAsync_AddsTheObjectAndTheCacheIsNotSet()
         {
             // Arrange.
             var azureBlob = await GetAzureBlobAsync();
