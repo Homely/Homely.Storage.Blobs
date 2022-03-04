@@ -181,5 +181,28 @@ namespace Homely.Storage.Blobs.Tests
 
             blob.MetaData["CacheControl"].ShouldBeNull();
         }
+
+        [Fact]
+        public async Task GivenAnObjectWhichHasUTF8CharactersButWeWantToAddItAsAscii_AddAsync_WithCacheControl_AddsTheObjectAsAsciiAndCacheControlSet()
+        {
+            // Arrange.
+            var azureBlob = await GetAzureBlobAsync();
+            const string utf8Text = "chárêctërs";
+            const string asciiText = "ch?r?ct?rs"; // NOTE: UTF8 characters are now 'lost'.
+
+            // Act.
+            var blobId = await azureBlob.AddAsync(utf8Text, null, Encoding.ASCII, cacheControlType: CacheControlType.NoStore);
+
+            // Assert.
+            blobId.ShouldNotBeNullOrWhiteSpace();
+            var blob = await azureBlob.GetAsync<string>(blobId, new List<string> { "CacheControl" }, default);
+            blob.Data.ShouldLookLike(asciiText);
+            blob.MetaData.ShouldContainKey("CacheControl");
+
+            CacheControlType cacheControlResult = CacheControlTypeHelper.GetCacheControlType(blob.MetaData["CacheControl"].ToString());
+
+            cacheControlResult.ShouldBe(CacheControlType.NoStore);
+        }
+
     }
 }
