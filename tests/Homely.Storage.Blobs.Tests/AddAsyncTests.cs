@@ -155,7 +155,7 @@ namespace Homely.Storage.Blobs.Tests
 
             // Assert.
             blobId.ShouldNotBeNullOrEmpty();
-            var blob = await azureBlob.GetAsync<SomeFakeUser>(blobId, new List<string> { "CacheControl" }, default);
+            var blob = await azureBlob.GetAsync<SomeFakeUser>(blobId, CacheBlobPropertyList, default);
             blob.Data.ShouldLookLike(TestUser);
             blob.MetaData.ShouldContainKey("CacheControl");
 
@@ -175,7 +175,7 @@ namespace Homely.Storage.Blobs.Tests
 
             // Assert.
             blobId.ShouldNotBeNullOrEmpty();
-            var blob = await azureBlob.GetAsync<SomeFakeUser>(blobId, new List<string> { "CacheControl" }, default);
+            var blob = await azureBlob.GetAsync<SomeFakeUser>(blobId, CacheBlobPropertyList, default);
             blob.Data.ShouldLookLike(TestUser);
             blob.MetaData.ShouldContainKey("CacheControl");
 
@@ -195,7 +195,7 @@ namespace Homely.Storage.Blobs.Tests
 
             // Assert.
             blobId.ShouldNotBeNullOrWhiteSpace();
-            var blob = await azureBlob.GetAsync<string>(blobId, new List<string> { "CacheControl" }, default);
+            var blob = await azureBlob.GetAsync<string>(blobId, CacheBlobPropertyList, default);
             blob.Data.ShouldLookLike(asciiText);
             blob.MetaData.ShouldContainKey("CacheControl");
 
