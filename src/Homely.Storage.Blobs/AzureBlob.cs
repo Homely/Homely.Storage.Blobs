@@ -171,23 +171,27 @@ namespace Homely.Storage.Blobs
         /// <inheritdoc />
         public async Task<string> AddAsync(object item,
                                            string blobId = null,
-                                           CancellationToken cancellationToken = default,
-                                           CacheControlType cacheControlType = CacheControlType.None)
+                                           CacheControlType cacheControlType = CacheControlType.None,
+                                           CancellationToken cancellationToken = default)
         {
             if (item == null)
             {
                 throw new ArgumentNullException(nameof(item));
             }
 
-            return await AddAsync(item, blobId, Encoding.UTF8, cancellationToken, cacheControlType);
+            return await AddAsync(item,
+                                  blobId,
+                                  Encoding.UTF8,
+                                  cacheControlType,
+                                  cancellationToken);
         }
 
         /// <inheritdoc />
         public async Task<string> AddAsync(object item,
                                            string blobId,
                                            Encoding encoding,
-                                           CancellationToken cancellationToken = default,
-                                           CacheControlType cacheControlType = CacheControlType.None)
+                                           CacheControlType cacheControlType = CacheControlType.None,
+                                           CancellationToken cancellationToken = default)
         {
             if (item == null)
             {
@@ -211,15 +215,19 @@ namespace Homely.Storage.Blobs
 
             var bytes = encoding.GetBytes(data);
 
-            return await AddAsync(bytes, blobId, contentType, cancellationToken, cacheControlType);
+            return await AddAsync(bytes,
+                                  blobId,
+                                  contentType,
+                                  cacheControlType,
+                                  cancellationToken);
         }
 
         /// <inheritdoc />
         public async Task<string> AddAsync(byte[] content,
                                            string blobId = null,
                                            string contentType = null,
-                                           CancellationToken cancellationToken = default,
-                                           CacheControlType cacheControlType = CacheControlType.None)
+                                           CacheControlType cacheControlType = CacheControlType.None,
+                                           CancellationToken cancellationToken = default)
         {
             if (content == null)
             {
@@ -235,8 +243,8 @@ namespace Homely.Storage.Blobs
                 generatedBlobName = await AddAsync(stream,
                                                    blobId,
                                                    contentType,
-                                                   cancellationToken,
-                                                   cacheControlType);
+                                                   cacheControlType,
+                                                   cancellationToken);
             }
 
             return generatedBlobName;
@@ -246,8 +254,8 @@ namespace Homely.Storage.Blobs
         public async Task<string> AddAsync(Stream content,
                                            string blobId = null,
                                            string contentType = null,
-                                           CancellationToken cancellationToken = default,
-                                           CacheControlType cacheControlType = CacheControlType.None)
+                                           CacheControlType cacheControlType = CacheControlType.None,
+                                           CancellationToken cancellationToken = default)
         {
             if (content == null)
             {
@@ -284,8 +292,8 @@ namespace Homely.Storage.Blobs
         public async Task<string> AddAsync(Uri sourceUri,
                                            string blobId = null,
                                            string contentType = null,
-                                           CancellationToken cancellationToken = default,
-                                           CacheControlType cacheControlType = CacheControlType.None)
+                                           CacheControlType cacheControlType = CacheControlType.None,
+                                           CancellationToken cancellationToken = default)
         {
             if (sourceUri == null)
             {
@@ -334,18 +342,22 @@ namespace Homely.Storage.Blobs
         /// <inheritdoc />
         public async Task<IList<string>> AddBatchAsync<T>(ICollection<T> items,
                                                           int batchSize = 25,
-                                                          CancellationToken cancellationToken = default,
-                                                          CacheControlType cacheControl = CacheControlType.None)
+                                                          CacheControlType cacheControl = CacheControlType.None,
+                                                          CancellationToken cancellationToken = default)
         {
-            return await AddBatchAsync(items, Encoding.UTF8, batchSize, cancellationToken, cacheControl);
+            return await AddBatchAsync(items,
+                                       Encoding.UTF8,
+                                       batchSize,
+                                       cacheControl,
+                                       cancellationToken);
         }
 
         /// <inheritdoc />
         public async Task<IList<string>> AddBatchAsync<T>(ICollection<T> items,
                                                           Encoding encoding,
                                                           int batchSize = 25,
-                                                          CancellationToken cancellationToken = default,
-                                                          CacheControlType cacheControl = CacheControlType.None)
+                                                          CacheControlType cacheControl = CacheControlType.None,
+                                                          CancellationToken cancellationToken = default)
         {
             if (batchSize <= 0)
             {
@@ -361,7 +373,11 @@ namespace Homely.Storage.Blobs
 
             foreach (var batch in items.Batch(finalBatchSize))
             {
-                var tasks = batch.Select(item => AddAsync(item, null, encoding, cancellationToken, cacheControl));
+                var tasks = batch.Select(item => AddAsync(item, 
+                                                          null,
+                                                          encoding,
+                                                          cacheControl,
+                                                          cancellationToken));
 
                 // Execute the batch! Go Go Go!
                 var results = await Task.WhenAll(tasks);
