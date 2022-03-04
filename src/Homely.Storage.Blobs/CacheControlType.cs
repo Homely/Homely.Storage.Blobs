@@ -28,6 +28,11 @@ namespace Homely.Storage.Blobs
 
         public static CacheControlType GetCacheControlType(string stringValue)
         {
+            if (string.IsNullOrWhiteSpace(stringValue))
+            {
+                throw new ArgumentNullException(nameof(stringValue));
+            }
+
             if (stringValue.Equals("no-store", StringComparison.OrdinalIgnoreCase))
             {
                 return CacheControlType.NoStore;
