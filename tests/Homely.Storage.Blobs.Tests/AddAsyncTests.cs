@@ -159,7 +159,7 @@ namespace Homely.Storage.Blobs.Tests
             blob.Data.ShouldLookLike(TestUser);
             blob.MetaData.ShouldContainKey("CacheControl");
 
-            CacheControlType cacheControlResult = CacheControlTypeHelper.GetCacheControlType(blob.MetaData["CacheControl"].ToString());
+            var cacheControlResult = CacheControlTypeHelper.GetCacheControlType(blob.MetaData["CacheControl"].ToString());
 
             cacheControlResult.ShouldBe(expectedCacheControl);
         }
