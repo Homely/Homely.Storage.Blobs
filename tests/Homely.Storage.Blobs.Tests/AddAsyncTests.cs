@@ -145,7 +145,7 @@ namespace Homely.Storage.Blobs.Tests
         [Theory]
         [InlineData(CacheControlType.NoCache)]
         [InlineData(CacheControlType.NoStore)]
-        public async Task GivenAnObjectThatDoesNotExist_AddAsync_SetWithCache_AddsObjectAndCacheIsSet(CacheControlType expectedCacheControl)
+        public async Task GivenAnObjectThatDoesNotExistAndCacheControlIsSet_AddAsync__AddsTheObjectAndTheCacheIsSet(CacheControlType expectedCacheControl)
         {
             // Arrange.
             var azureBlob = await GetAzureBlobAsync();
